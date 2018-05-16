@@ -94,8 +94,8 @@
 			// [[Class]] -> type pairs
 			class2type = {};
 
-		
-			jQuery.fn = jQuery.prototype = {
+
+		jQuery.fn = jQuery.prototype = {
 			constructor: jQuery,
 			init: function (selector, context, rootjQuery) {
 				var match, elem, ret, doc;
