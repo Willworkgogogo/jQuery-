@@ -38,31 +38,33 @@
      * jQuery.extend() 和 jQuery.fn.extend() 方法
      * 这两个方法指向同一个函数，利用函数内部this指向对象不同，一个为jQuery对象扩展方法，一个为jQuery.fn也就是jQuery.prototype原型对象扩展方法。其他的功能是一致的
      * 功能：
-     *  1. 深浅拷贝
-     *  2. 
+     *  1. 对象合并 ， 深拷贝 $.extend(true, {}, {name: 'will', age: 12, job: 'fe'})
+     *  2. jQuery.extend({age: 18}) 传的是单个对象，将会被挂载到jQuery对象上，$.age就能访问到。 jQuery.fn.extend({age: 18}), 挂载到jQuery对象的原型上，$().age访问
      */
     jQuery.extend = jQuery.fn.extend = function () {
       var options, name, src, copy, copyIsArray, clone,
-        target = arguments[0] || {},  // 获取第一个参数，否则赋值为空对象。 target用于代表当前处理的参数
+        target = arguments[0] || {},  // target用于代表当前处理的参数
         i = 1,
         length = arguments.length,
         deep = false;
 
       // Handle a deep copy situation // 第一个参数是否是布尔值，来决定是否进行深浅拷贝
-      if (typeof target === "boolean") {
+      if (typeof target === "boolean") { // jQuery.extend(true, {name: 'WILL'})
         deep = target; // 拿到第一个参数的值 true or false
-        target = arguments[1] || {}; // 将target设置为第二个参数或者为空对象
+        target = arguments[1] || {}; // 修改target的值，将target设置为第二个参数或者为空对象
         // skip the boolean and the target
-        i = 2; // 修改i的值，跳过参数的第1、2项，因为后面要遍历参数，i就是参数的起始位置
+        i = 2; // i就是参数的起始位置。 修改i的值，跳过参数的第1、2项，因为后面要遍历参数
       }
 
       // Handle case when target is a string or something (possible in deep copy)
-      if (typeof target !== "object" && !jQuery.isFunction(target)) {
+      if (typeof target !== "object" && !jQuery.isFunction(target)) { // target非对象、非函数情况
         target = {};
       }
 
       // extend jQuery itself if only one argument is passed
-      // 一个参数的情况
+      // 传递一个参数的情况，就是去扩展jQuery对象本身
+      // 用于实现插件
+      // jQuery.extend(true, {name: 'Will'}) 这种情况也能通过判定啊？ 因为第一个判断修改了i=2，这里length==2， 所以length==i ? 尴尬，怎么理解
       if (length === i) {
         target = this;
         --i;
@@ -83,19 +85,22 @@
 
             // Recurse if we're merging plain objects or arrays
             if (deep && copy && (jQuery.isPlainObject(copy) || (copyIsArray = jQuery.isArray(copy)))) {
+              // 以下内容都用于深度拷贝
               if (copyIsArray) {
                 copyIsArray = false;
-                clone = src && jQuery.isArray(src) ? src : [];
+                clone = src && jQuery.isArray(src) ? src : []; // 判断src是否为数组，是赋值给clone，不是则将[]赋值给clone
 
               } else {
                 clone = src && jQuery.isPlainObject(src) ? src : {};
               }
 
               // Never move original objects, clone them
+              // 递归
               target[name] = jQuery.extend(deep, clone, copy);
 
               // Don't bring in undefined values
             } else if (copy !== undefined) {
+              // 往target对象上添加属性值
               target[name] = copy;
             }
           }
@@ -103,10 +108,9 @@
       }
 
       // Return the modified object
+      // 将修改后的目标对象返回
       return target;
     }
-
-
 
     return jQuery
   })()
